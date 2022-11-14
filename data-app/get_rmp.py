@@ -20,10 +20,13 @@ def generate_rmp():
                 score=prof["overall_rating"]
                 numOfRatings=prof["tNumRatings"]
                 dept=prof["tDept"]
+                tid=prof["tid"]
+                pgLink=f"https://www.ratemyprofessors.com/professor?tid={tid}"
                 print(f"[{pgNum}/{pages+1}]Getting {name} with {score} on RMP")
                 professor[name]={"department":dept,
                                  "numOfratings":numOfRatings,
-                                 "overallRatings":score}
+                                 "overallRatings":score,
+                                 "pgLink":pgLink}
         except ValueError:
             print("Something doesn't exist :(")
 
@@ -39,11 +42,11 @@ def getRMP(x):
         name=x
 
     try:
-        return RMP[name]["overallRatings"]
+        return [RMP[name]["overallRatings"],RMP[name]["pgLink"]]
     except KeyError:
-        return "N/A"
+        return ["N/A","N/A"]
 
 generate_rmp()
 df=pd.read_csv("combined_data.csv")
-df["RMP_SCORE"]=df["HR_NAME"].apply(getRMP)
+df["RMP_SCORE"],df["RMP_LINK"]=zip(*df["HR_NAME"].map(getRMP))
 df.to_csv("RMP_combined_data.csv",index=False)
